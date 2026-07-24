@@ -1,0 +1,107 @@
+import tkinter as tk
+import math
+
+# إنشاء النافذة الرئيسية
+root = tk.Tk()
+root.title("Shahd's Scientific Calculator")
+root.geometry("400x680")
+root.configure(bg="#12131C")  # خلفية داكنة جداً مثل الآلات العلمية
+root.resizable(False, False)
+
+# شاشة عرض الأرقام (Display)
+entry = tk.Entry(
+    root, 
+    font=("Consolas", 26, "bold"), 
+    bg="#D5E3E1",  # لون شاشة الآلة العلمية (رمادي فاتح/مخضر)
+    fg="#000000", 
+    bd=4, 
+    relief="sunken",
+    justify="right"
+)
+entry.pack(fill="both", ipadx=8, ipady=18, padx=15, pady=15)
+
+# دوال العمليات الحسابية والعلمية
+def button_click(value):
+    entry.insert(tk.END, str(value))
+
+def clear():
+    entry.delete(0, tk.END)
+
+def backspace():
+    current = entry.get()
+    if current:
+        entry.delete(len(current) - 1, tk.END)
+
+def calculate():
+    try:
+        # استبدال الرموز بالرموز المفهومة لبايثون
+        expression = entry.get().replace('×', '*').replace('÷', '/')
+        expression = expression.replace('π', 'math.pi').replace('e', 'math.e')
+        expression = expression.replace('sin', 'math.sin').replace('cos', 'math.cos').replace('tan', 'math.tan')
+        expression = expression.replace('√', 'math.sqrt').replace('log', 'math.log10').replace('ln', 'math.log')
+        
+        result = eval(expression)
+        entry.delete(0, tk.END)
+        entry.insert(0, str(result))
+    except Exception:
+        entry.delete(0, tk.END)
+        entry.insert(0, "Error")
+
+# إطار الأزرار
+frame = tk.Frame(root, bg="#12131C")
+frame.pack(fill="both", expand=True, padx=10, pady=10)
+
+# ترتيب أزرار الآلة العلمية
+buttons = [
+    # الصف الأول: عمليات متقدمة
+    ('sin', 0, 0, '#2C2D3C', '#FFFFFF'), ('cos', 0, 1, '#2C2D3C', '#FFFFFF'), ('tan', 0, 2, '#2C2D3C', '#FFFFFF'), ('π', 0, 3, '#2C2D3C', '#FFD700'), ('e', 0, 4, '#2C2D3C', '#FFD700'),
+    
+    # الصف الثاني: أسس وجذور
+    ('√', 1, 0, '#2C2D3C', '#FFFFFF'), ('x²', 1, 1, '#2C2D3C', '#FFFFFF'), ('log', 1, 2, '#2C2D3C', '#FFFFFF'), ('ln', 1, 3, '#2C2D3C', '#FFFFFF'), ('(', 1, 4, '#2C2D3C', '#FFFFFF'),
+    
+    # الصف الثالث: مسح وتنظيف
+    ('AC', 2, 0, '#FF8C00', '#FFFFFF'), ('⌫', 2, 1, '#FF8C00', '#FFFFFF'), (')', 2, 2, '#2C2D3C', '#FFFFFF'), ('%', 2, 3, '#2C2D3C', '#FFFFFF'), ('÷', 2, 4, '#2C2D3C', '#FFD700'),
+    
+    # صفوف الأرقام والعمليات الأساسية
+    ('7', 3, 0, '#1E1F29', '#FFFFFF'), ('8', 3, 1, '#1E1F29', '#FFFFFF'), ('9', 3, 2, '#1E1F29', '#FFFFFF'), ('×', 3, 3, '#2C2D3C', '#FFD700'), ('-', 3, 4, '#2C2D3C', '#FFD700'),
+    ('4', 4, 0, '#1E1F29', '#FFFFFF'), ('5', 4, 1, '#1E1F29', '#FFFFFF'), ('6', 4, 2, '#1E1F29', '#FFFFFF'), ('+', 4, 3, '#2C2D3C', '#FFD700'), ('=', 4, 4, '#4CAF50', '#FFFFFF'),
+    ('1', 5, 0, '#1E1F29', '#FFFFFF'), ('2', 5, 1, '#1E1F29', '#FFFFFF'), ('3', 5, 2, '#1E1F29', '#FFFFFF'), ('0', 5, 3, '#1E1F29', '#FFFFFF'), ('.', 5, 4, '#1E1F29', '#FFFFFF')
+]
+
+# ضبط الشبكة (5 أعمدة)
+for i in range(6):
+    frame.grid_rowconfigure(i, weight=1)
+for j in range(5):
+    frame.grid_columnconfigure(j, weight=1)
+
+# إضافة الأزرار للشبكة
+for text, row, col, bg, fg in buttons:
+    if text == 'AC':
+        cmd = clear
+    elif text == '⌫':
+        cmd = backspace
+    elif text == '=':
+        cmd = calculate
+    elif text == 'x²':
+        cmd = lambda: button_click('**2')
+    elif text in ['sin', 'cos', 'tan', 'log', 'ln', '√']:
+        cmd = lambda t=text: button_click(t + '(')
+    else:
+        cmd = lambda t=text: button_click(t)
+
+    btn = tk.Button(
+        frame, 
+        text=text, 
+        font=("Segoe UI", 12, "bold"),
+        bg=bg, 
+        fg=fg,
+        activebackground="#585B70",
+        activeforeground="#FFFFFF",
+        bd=0, 
+        relief="flat",
+        cursor="hand2",
+        command=cmd
+    )
+    btn.grid(row=row, column=col, sticky="nsew", padx=3, pady=3)
+
+root.mainloop()
